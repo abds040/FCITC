@@ -6,11 +6,15 @@
 
 package com.abds040.fcitc_spark;
 
+import com.abds040.fcitc_spark.coord.User;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.util.HashMap;
 import java.util.Map;
 import spark.ModelAndView;
 import spark.Request;
 import static spark.Spark.get;
+import static spark.Spark.post;
 import static spark.Spark.before;
 import static spark.Spark.port;
 import spark.template.velocity.VelocityTemplateEngine;
@@ -49,8 +53,21 @@ public class FCITC_SPARK {
         });
         
         
-        get("/posts1", (req, res) -> {
-            return "Hello Sparkingly World!";
+        
+        
+        post("/login", (req, res) -> {
+            try {
+                Gson gson = new Gson();
+                Map<String,Object> map = gson.fromJson(req.body(), new TypeToken<Map<String,Object>>(){}.getType());
+                
+                String token = User.logon(map.get("username").toString(), map.get("password").toString());
+                if (token == null) {
+                    return helperJSONObject(1, ReturnCodes.TC111z_LoginError);
+                }
+                return helperJSONString(0, "OK", "token", token);
+            } catch (FCSException e) {
+                return helperJSONObject(2, e.getMessage());
+            }
         });
         
         
@@ -111,6 +128,9 @@ public class FCITC_SPARK {
         get("/*", (req, res) -> {
             return "Wo wollet se no!";
         });
+        post("/*", (req, res) -> {
+            return "Wo wollet se no!";
+        });
     }
     
      private static boolean shouldReturnHtml(Request request) {
@@ -118,4 +138,26 @@ public class FCITC_SPARK {
         return accept != null && accept.contains("text/html");
     }
     
+    private static Map<String,Object> helperJSONObject(int rc, String msg) {
+        try {
+            Map<String,Object> obj = new HashMap<String,Object>();
+            obj.put("rc", rc);
+            obj.put("msg", msg);
+            return obj;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    private static Map<String,Object> helperJSONString(int rc, String msg, String key1, String value1) {
+        try {
+            Map<String,Object> obj = new HashMap<String,Object>();
+            obj.put("rc", rc);
+            obj.put("msg", msg);
+            obj.put(key1, value1);
+            return obj;
+        } catch (Exception e) {
+            return null;//"{\"rc\":2,\"msg\",\""+msg+"\"}";
+        }
+    }
+     
 }

@@ -11,7 +11,31 @@ package com.abds040.fcitc_spark;
  * @author Daniel
  */
 public class JsonMsg1 {
+    
+    int id;
+    String msg;
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    String username;
+    String password;
+
+    public JsonMsg1() {
+        
+    }
     public JsonMsg1(int id, String msg) {
         this.id = id; 
         this.msg = msg;
@@ -32,6 +56,5 @@ public class JsonMsg1 {
     public void setMsg(String msg) {
         this.msg = msg;
     }
-    int id;
-    String msg;
+    
 }
